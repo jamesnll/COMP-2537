@@ -5,9 +5,11 @@ const session = require('express-session');
 const mongoDB = require('connect-mongo');
 const bcrypt = require('bcrypt');
 const joi = require('joi');
+/** End of required modules. */
 
 const port = process.env.PORT || 3020;
 var saltRounds = 12;
+const expireTime = 60 * 60 * 1000;
 const app = express();
 
 /** Secret Info. */
@@ -17,7 +19,9 @@ const mongodb_password = process.env.MONGODB_PASSWORD;
 const mongodb_database = process.env.MONGODB_DATABASE;
 const mongodb_secretSession = process.env.MONGODB_SESSION_SECRET;
 const nodeSecretSession = process.env.NODE_SESSION_SECRET;
+/** End of secret info. */
 
+/** Database connection. */
 var {database} = require('./databaseConnection.js');
 
 const userCollection = database.db(mongodb_database).collection('users');
@@ -30,6 +34,7 @@ var mongoStore = mongoDB.create({
 		secret: mongodb_secretSession
 	}
 })
+/** End of database connection. */
 
 app.use(session({
     secret: nodeSecretSession,
@@ -41,10 +46,21 @@ app.use(session({
 
 /** Landing page. */
 app.get('/', (req, res) => {
-    var html = `
+    var html;
+    if (!req.session.authenticated) {
+        html = `
+        <h1>Welcome</h1>
         <button onclick="window.location.href='/login'">Login</button><br/>
         <button onclick="window.location.href='/signup'">Sign up</button>`;
     res.send(html);
+    } else {
+        html = `
+        <h1>Welcome</h1>
+        <p>Hello, ${req.session.username}!</p>
+        <button onclick="window.location.href='/members'">Go to Members Area</button><br/>
+        <button onclick="window.location.href='/logout'">Logout</button>`;
+    res.send(html);
+    }
 })
 
 /** Sign up page. */
@@ -68,6 +84,7 @@ app.post('/submitUser', async (req,res) => {
     var email = req.body.email;
     var password = req.body.password;
     var html;
+    // Check for missing fields
     if (!username) {
         html = `<h1>Sign up error</h1><p>Missing username</p><a href='/signup'>Try again</a>`;
         res.send(html);
@@ -83,44 +100,111 @@ app.post('/submitUser', async (req,res) => {
         res.send(html);
         return;
     }
+    
+    // Check for noSQL injection attacks
 	const schema = joi.object(
 		{
 			username: joi.string().alphanum().max(20).required(),
             email: joi.string().email().required(),
 			password: joi.string().max(20).required()
 		});
-	
+	// Validate user input
 	const validationResult = schema.validate({username, email, password});
 	if (validationResult.error != null) {
-	   console.log(validationResult.error);
-	   res.redirect("/signup");
+        console.log(validationResult.error);
+        res.send(`<h1 style='color:darkred;'>WARNING: NOSQL INJECTION ATTACK DETECTED!</h1>
+            <button onclick='window.location.href=\"/\"'>Home page</button>`);
 	   return;
-   }
-
+	}
+    // Bcrypt password
     var hashedPassword = await bcrypt.hash(password, saltRounds);
-	
-	await userCollection.insertOne({username: username, password: hashedPassword});
+	// Insert user into database
+	await userCollection.insertOne({username: username, email: email, password: hashedPassword});
 	console.log("Inserted user");
-
-    var html = "successfully created user";
+    // Go to members page
     res.redirect("/members");
 });
 
-app.get('/loggedin', (req,res) => {
+
+/** Login page. */
+app.get('/login', (req, res) => {
+    var html = `
+        <h1>Login</h1>
+        <p>Enter username and password</p>
+        <form action='/submitLogin' method='post'>
+        <input name='email' type='text' placeholder='email'><br/>
+        <input name='password' type='password' placeholder='password'><br/>
+        <button>Submit</button>
+        </form>`;
+    res.send(html);
+});
+
+/** Login validation. */
+app.post('/submitLogin', async (req,res) => {
+    var username = req.body.username;
+    var email = req.body.email;
+    var password = req.body.password;
+    // Create a joi object to check both email and password
+    const schema = joi.object({
+        email: joi.string().email().required(),
+        password: joi.string().max(20).required()
+    });
+    const validationResult = schema.validate({email, password});
+	if (validationResult.error != null) {
+        console.log(validationResult.error);
+        res.send(`<h1 style='color:darkred;'>WARNING: NOSQL INJECTION ATTACK DETECTED!</h1>
+            <button onclick='window.location.href=\"/\"'>Home page</button>`);
+	   return;
+	}
+    // Find user details in database from email
+	const result = await userCollection.find({email: email}).project({username: 1, password: 1, _id: 1}).toArray();
+    
+	console.log(result);
+    // User not found
+	if (result.length != 1) {
+		console.log("user not found");
+		res.redirect("/login");
+		return;
+	}
+    // Check password
+	if (await bcrypt.compare(password, result[0].password)) {
+		console.log("correct password");
+		req.session.authenticated = true;
+		req.session.username = result[0].username;
+		req.session.cookie.maxAge = expireTime;
+
+		res.redirect('/members');
+		return;
+    // Incorrect password
+	} else {
+		console.log("incorrect password");
+		res.redirect("/login");
+		return;
+	}
+});
+
+/** Members page. */
+app.get('/members', (req, res) => {
     if (!req.session.authenticated) {
         res.redirect('/login');
     }
-    var html = `
-    You are logged in!
-    `;
-    res.redirect("/members");
-});
-
-app.get("/members", (req, res) => {
+    
     var html = `
     <h1>Members only</h1>
+    <h2>Hello, ${req.session.username}</h2>
     <p>Members only content, no J-Den's allowed.</p>
     <button onclick="window.location.href='/logout'">Logout</button>
+    `;
+    res.send(html);
+});
+
+/** Logout page. */
+app.get('/logout', (req,res) => {
+	req.session.destroy();
+    var html = `
+    <h1>Logout</h1>
+    <p>You are logged out.</p>
+    <button onclick="window.location.href='/'">Home page</button>
     `;
     res.send(html);
 });
