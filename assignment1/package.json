@@ -6,6 +6,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "engines": {
+    "node": "^18"
+  },
+  "author": "James Langille",
+  "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.0",
     "connect-mongodb-session": "^3.1.1",
