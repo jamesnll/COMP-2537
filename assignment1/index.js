@@ -8,6 +8,7 @@ const joi = require('joi');
 /** End of required modules. */
 
 const port = process.env.PORT || 3020;
+const images = ['marmot1.gif', 'marmot2.gif', 'marmot3.gif']
 var saltRounds = 12;
 const expireTime = 60 * 60 * 1000;
 const app = express();
@@ -188,11 +189,12 @@ app.get('/members', (req, res) => {
     if (!req.session.authenticated) {
         res.redirect('/login');
     }
-    
+    var image = images[Math.floor(Math.random() * images.length)];
+    var imageURL = image;
     var html = `
     <h1>Members only</h1>
     <h2>Hello, ${req.session.username}</h2>
-    <p>Members only content, no J-Den's allowed.</p>
+    <img src="${imageURL}" alt="random image">
     <button onclick="window.location.href='/logout'">Logout</button>
     `;
     res.send(html);
@@ -209,7 +211,15 @@ app.get('/logout', (req,res) => {
     res.send(html);
 });
 
+app.use(express.static(__dirname + '/public'));
 
+// 404 page
+app.get("*", (req,res) => {
+	res.status(404);
+	res.send("Page not found - 404");
+})
+
+// Start server
 app.listen(port, () => {
     console.log("Node application listening on port " + port);
 })
