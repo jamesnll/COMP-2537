@@ -7,7 +7,7 @@ const bcrypt = require('bcrypt');
 const joi = require('joi');
 /** End of required modules. */
 
-const port = process.env.PORT || 3020;
+const port = 3020;
 const images = ['marmot1.gif', 'marmot2.gif', 'marmot3.gif']
 var saltRounds = 12;
 const expireTime = 60 * 60 * 1000;
