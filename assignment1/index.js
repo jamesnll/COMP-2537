@@ -39,7 +39,7 @@ var mongoStore = mongoDB.create({
 
 app.use(session({
     secret: nodeSecretSession,
-	store: mongoStore, //default is memory store
+	store: mongoStore,
 	saveUninitialized: false,
 	resave: true
 }
