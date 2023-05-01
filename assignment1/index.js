@@ -142,9 +142,9 @@ app.get('/login', (req, res) => {
 
 /** Login validation. */
 app.post('/submitLogin', async (req,res) => {
-    var username = req.body.username;
     var email = req.body.email;
     var password = req.body.password;
+
     // Create a joi object to check both email and password
     const schema = joi.object({
         email: joi.string().email().required(),
@@ -178,9 +178,10 @@ app.post('/submitLogin', async (req,res) => {
 		return;
     // Incorrect password
 	} else {
-		console.log("incorrect password");
-		res.redirect("/login");
-		return;
+        console.log("incorrect password");
+        html = `<h1>Login error</h1><p>Incorrect password</p><a href='/login'>Try again</a>`;
+        res.send(html);
+        return;
 	}
 });
 
