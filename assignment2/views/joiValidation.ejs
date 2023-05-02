@@ -1,0 +1,9 @@
+<%- include("templates/header") %>
+
+    <% if (validationResult.error != null) { %>
+        <% console.log(validationResult.error); %>
+        <h1 style='color:darkred;'>WARNING: NOSQL INJECTION ATTACK DETECTED!</h1>
+        <button onclick='window.location.href="/";'>Home page</button>
+    <% } %>
+
+<%- include("templates/footer") %>

@@ -90,12 +90,7 @@ app.post('/submitUser', async (req,res) => {
 		});
 	// Validate user input
 	const validationResult = schema.validate({username, email, password});
-	if (validationResult.error != null) {
-        console.log(validationResult.error);
-        res.send(`<h1 style='color:darkred;'>WARNING: NOSQL INJECTION ATTACK DETECTED!</h1>
-            <button onclick='window.location.href=\"/\"'>Home page</button>`);
-	   return;
-	}
+	res.render('joiValidation', {validationResult: validationResult});
     // Bcrypt password
     var hashedPassword = await bcrypt.hash(password, saltRounds);
 	// Insert user into database
@@ -125,12 +120,7 @@ app.post('/submitLogin', async (req,res) => {
         password: joi.string().max(20).required()
     });
     const validationResult = schema.validate({email, password});
-	if (validationResult.error != null) {
-        console.log(validationResult.error);
-        res.send(`<h1 style='color:darkred;'>WARNING: NOSQL INJECTION ATTACK DETECTED!</h1>
-            <button onclick='window.location.href=\"/\"'>Home page</button>`);
-	   return;
-	}
+	res.render('joiValidation', {validationResult: validationResult});
     // Find user details in database from email
 	const result = await userCollection.find({email: email}).project({username: 1, password: 1, _id: 1}).toArray();
     var username = result[0].username;
