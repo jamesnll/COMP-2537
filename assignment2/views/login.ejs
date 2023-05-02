@@ -1,9 +1,24 @@
 <%- include("templates/header") %>
-    <h1>Login</h1>
-    <p>Enter email and password</p>
-    <form action='/submitLogin' method='post'>
-    <input name='email' type='text' placeholder='email'><br/>
-    <input name='password' type='password' placeholder='password'><br/>
-    <button>Submit</button>
-    </form>
+    <main class="form-signin w-100 m-auto">
+        <form action='/submitLogin' method='post'>
+          <img class="mb-4" src="/marmot1.gif" alt="" width="72" height="57">
+          <h1 class="h3 mb-3 fw-normal">Log in</h1>
+            
+          <div class="form-floating">
+            <input type="email" name="email" class="form-control" id="floatingEmail" placeholder="name@example.com">
+            <label for="floatingEmail">Email address</label>
+          </div>
+          <div class="form-floating">
+            <input type="password" name="password" class="form-control" id="floatingPassword" placeholder="Password">
+            <label for="floatingPassword">Password</label>
+          </div>
+      
+          <div class="checkbox mb-3">
+            <label>
+              <input type="checkbox" value="remember-me"> Remember me
+            </label>
+          </div>
+          <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
+        </form>
+      </main>
 <%- include("templates/footer") %> 
