@@ -133,7 +133,8 @@ app.post('/submitLogin', async (req,res) => {
 	}
     // Find user details in database from email
 	const result = await userCollection.find({email: email}).project({username: 1, password: 1, _id: 1}).toArray();
-    
+    var username = result[0].username;
+
 	console.log(result);
     // User not found
 	if (result.length != 1) {
@@ -145,9 +146,8 @@ app.post('/submitLogin', async (req,res) => {
 	if (await bcrypt.compare(password, result[0].password)) {
 		console.log("correct password");
 		req.session.authenticated = true;
-		req.session.username = result[0].username;
+		req.session.username = username;
 		req.session.cookie.maxAge = expireTime;
-
 		res.redirect('/members');
 		return;
     // Incorrect password
@@ -168,21 +168,14 @@ app.get('/members', (req, res) => {
 
 /** Logout page. */
 app.get('/logout', (req,res) => {
-	req.session.destroy();
-    var html = `
-    <h1>Logout</h1>
-    <p>You are logged out.</p>
-    <button onclick="window.location.href='/'">Home page</button>
-    `;
-    res.send(html);
+    res.render('logout', {req: req, res: res});
 });
 
 app.use(express.static(__dirname + '/public'));
 
 // 404 page
 app.get("*", (req,res) => {
-	res.status(404);
-	res.send("Page not found - 404");
+    res.render('404', {res: res});
 })
 
 // Start server
