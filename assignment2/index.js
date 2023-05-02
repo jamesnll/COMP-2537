@@ -12,6 +12,7 @@ const images = ['marmot1.gif', 'marmot2.gif', 'marmot3.gif']
 var saltRounds = 12;
 const expireTime = 60 * 60 * 1000;
 const app = express();
+app.set('view engine', 'ejs');
 
 /** Secret Info. */
 const mongodb_host = process.env.MONGODB_HOST;
@@ -47,6 +48,7 @@ app.use(session({
 
 /** Landing page. */
 app.get('/', (req, res) => {
+    res.render('index', {req: req});
     var html;
     if (!req.session.authenticated) {
         html = `
@@ -66,16 +68,7 @@ app.get('/', (req, res) => {
 
 /** Sign up page. */
 app.get('/signup', (req, res) => {
-    var html = `
-        <h1>Sign up</h1>
-        <p>Create user</p>
-        <form action='/submitUser' method='post'>
-        <input name='username' type='text' placeholder='username'><br/>
-        <input name='email' type='text' placeholder='email'><br/>
-        <input name='password' type='password' placeholder='password'><br/>
-        <button>Submit</button>
-        </form>`;
-    res.send(html);
+    res.render('signup');
 });
 
 
@@ -132,15 +125,7 @@ app.post('/submitUser', async (req,res) => {
 
 /** Login page. */
 app.get('/login', (req, res) => {
-    var html = `
-        <h1>Login</h1>
-        <p>Enter username and password</p>
-        <form action='/submitLogin' method='post'>
-        <input name='email' type='text' placeholder='email'><br/>
-        <input name='password' type='password' placeholder='password'><br/>
-        <button>Submit</button>
-        </form>`;
-    res.send(html);
+    res.render('login');
 });
 
 /** Login validation. */

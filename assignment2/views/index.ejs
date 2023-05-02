@@ -1,0 +1,12 @@
+<%- include("templates/header") %>
+<% if (!req.session.authenticated) { %>
+    <h1>Welcome</h1>
+    <button onclick="window.location.href='/login'">Login</button><br/>
+    <button onclick="window.location.href='/signup'">Sign up</button>
+<% } else { %>
+    <h1>Welcome</h1>
+    <p>Hello, <%= req.session.username %>!</p>
+    <button onclick="window.location.href='/members'">Go to Members Area</button><br/>
+    <button onclick="window.location.href='/logout'">Logout</button>
+<% } %>
+<%- include("templates/footer") %> 
