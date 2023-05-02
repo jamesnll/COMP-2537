@@ -46,6 +46,41 @@ app.use(session({
 }
 ))
 
+function isValidSession(req) {
+    if (req.session.authenticated) {
+        return true;
+    }
+    return false;
+}
+
+function sessionValidation(req,res,next) {
+    if (isValidSession(req)) {
+        next();
+    }
+    else {
+        res.redirect('/login');
+    }
+}
+
+
+function isAdmin(req) {
+    if (req.session.user_type == 'admin') {
+        return true;
+    }
+    return false;
+}
+
+function adminAuthorization(req, res, next) {
+    if (!isAdmin(req)) {
+        res.status(403);
+        res.render("errorMessage", {error: "Not Authorized"});
+        return;
+    }
+    else {
+        next();
+    }
+}
+
 /** Landing page. */
 app.get('/', (req, res) => {
     res.render('index', {req: req});
@@ -61,8 +96,8 @@ app.get('/signup', (req, res) => {
 app.post('/submitUser', async (req,res) => {
     var username = req.body.username;
     var email = req.body.email;
+    var userType = 'user';
     var password = req.body.password;
-
     var html;
     // Check for missing fields
     if (!username) {
@@ -90,16 +125,23 @@ app.post('/submitUser', async (req,res) => {
 		});
 	// Validate user input
 	const validationResult = schema.validate({username, email, password});
-	res.render('joiValidation', {validationResult: validationResult});
+	if (validationResult.error != null) {
+        console.log(validationResult.error);
+        res.send(`<h1 style='color:darkred;'>WARNING: NOSQL INJECTION ATTACK DETECTED!</h1>
+            <button onclick='window.location.href=\"/\"'>Home page</button>`);
+	   return;
+	}
     // Bcrypt password
     var hashedPassword = await bcrypt.hash(password, saltRounds);
 	// Insert user into database
-	await userCollection.insertOne({username: username, email: email, password: hashedPassword});
+	await userCollection.insertOne({username: username, email: email, user_type: userType, password: hashedPassword});
 	console.log("Inserted user");
     // Go to members page
     req.session.authenticated = true;
     req.session.username = username;
+    req.session.user_type = userType
     req.session.cookie.maxAge = expireTime;
+    console.log(req.session.user_type);
     res.redirect("/members");
 });
 
@@ -120,11 +162,15 @@ app.post('/submitLogin', async (req,res) => {
         password: joi.string().max(20).required()
     });
     const validationResult = schema.validate({email, password});
-	res.render('joiValidation', {validationResult: validationResult});
+	if (validationResult.error != null) {
+        console.log(validationResult.error);
+        res.send(`<h1 style='color:darkred;'>WARNING: NOSQL INJECTION ATTACK DETECTED!</h1>
+            <button onclick='window.location.href=\"/\"'>Home page</button>`);
+	   return;
+	}
     // Find user details in database from email
-	const result = await userCollection.find({email: email}).project({username: 1, password: 1, _id: 1}).toArray();
-    var username = result[0].username;
-
+	const result = await userCollection.find({email: email}).project({username: 1, user_type: 1, password: 1, _id: 1}).toArray();
+    
 	console.log(result);
     // User not found
 	if (result.length != 1) {
@@ -136,8 +182,11 @@ app.post('/submitLogin', async (req,res) => {
 	if (await bcrypt.compare(password, result[0].password)) {
 		console.log("correct password");
 		req.session.authenticated = true;
-		req.session.username = username;
+		req.session.username = result[0].username;
+        req.session.user_type = result[0].user_type;
+        console.log(req.session.user_type);
 		req.session.cookie.maxAge = expireTime;
+
 		res.redirect('/members');
 		return;
     // Incorrect password
@@ -156,6 +205,13 @@ app.get('/members', (req, res) => {
     res.render('members', {req: req, username: req.session.username, imageURL: imageURL });
 });
 
+// Admin page
+app.get('/admin', sessionValidation, adminAuthorization, async (req,res) => {
+    const result = await userCollection.find().project({username: 1, _id: 1}).toArray();
+ 
+    res.render("admin", {users: result});
+});
+
 /** Logout page. */
 app.get('/logout', (req,res) => {
     res.render('logout', {req: req, res: res});
@@ -167,6 +223,7 @@ app.use(express.static(__dirname + '/public'));
 app.get("*", (req,res) => {
     res.render('404', {res: res});
 })
+
 
 // Start server
 app.listen(port, () => {
