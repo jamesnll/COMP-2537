@@ -49,21 +49,6 @@ app.use(session({
 /** Landing page. */
 app.get('/', (req, res) => {
     res.render('index', {req: req});
-    var html;
-    if (!req.session.authenticated) {
-        html = `
-        <h1>Welcome</h1>
-        <button onclick="window.location.href='/login'">Login</button><br/>
-        <button onclick="window.location.href='/signup'">Sign up</button>`;
-    res.send(html);
-    } else {
-        html = `
-        <h1>Welcome</h1>
-        <p>Hello, ${req.session.username}!</p>
-        <button onclick="window.location.href='/members'">Go to Members Area</button><br/>
-        <button onclick="window.location.href='/logout'">Logout</button>`;
-    res.send(html);
-    }
 })
 
 /** Sign up page. */
