@@ -200,9 +200,10 @@ app.post('/submitLogin', async (req,res) => {
 
 /** Members page. */
 app.get('/members', (req, res) => {
-    var image = images[Math.floor(Math.random() * images.length)];
-    var imageURL = image;
-    res.render('members', {req: req, res: res, username: req.session.username, imageURL: imageURL });
+    const marmot1 = "/marmot1.gif";
+    const marmot2 = "/marmot2.gif";
+    const marmot3 = "/marmot3.gif";
+    res.render('members', {req: req, res: res, username: req.session.username, pic1: marmot1, pic2: marmot2, pic3: marmot3});
 });
 
 // Admin page
