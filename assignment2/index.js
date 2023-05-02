@@ -62,6 +62,7 @@ app.post('/submitUser', async (req,res) => {
     var username = req.body.username;
     var email = req.body.email;
     var password = req.body.password;
+
     var html;
     // Check for missing fields
     if (!username) {
@@ -160,18 +161,9 @@ app.post('/submitLogin', async (req,res) => {
 
 /** Members page. */
 app.get('/members', (req, res) => {
-    if (!req.session.authenticated) {
-        res.redirect('/login');
-    }
     var image = images[Math.floor(Math.random() * images.length)];
     var imageURL = image;
-    var html = `
-    <h1>Members only</h1>
-    <h2>Hello, ${req.session.username}</h2>
-    <img src="${imageURL}" alt="random image">
-    <button onclick="window.location.href='/logout'">Logout</button>
-    `;
-    res.send(html);
+    res.render('members', {req: req, username: req.session.username, imageURL: imageURL });
 });
 
 /** Logout page. */
