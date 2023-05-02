@@ -202,7 +202,7 @@ app.post('/submitLogin', async (req,res) => {
 app.get('/members', (req, res) => {
     var image = images[Math.floor(Math.random() * images.length)];
     var imageURL = image;
-    res.render('members', {req: req, username: req.session.username, imageURL: imageURL });
+    res.render('members', {req: req, res: res, username: req.session.username, imageURL: imageURL });
 });
 
 // Admin page

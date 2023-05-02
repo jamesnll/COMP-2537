@@ -1,7 +1,7 @@
 <%- include("templates/header") %>
 
     <% if (!req.session.authenticated) { %>
-        <% redirect('/login'); %>
+        <% res.redirect('/login'); %>
     <% } %>
 
     <h1>Members only</h1>
