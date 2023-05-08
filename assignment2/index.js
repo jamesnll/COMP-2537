@@ -5,6 +5,7 @@ const session = require('express-session');
 const mongoDB = require('connect-mongo');
 const bcrypt = require('bcrypt');
 const joi = require('joi');
+const ObjectId = require('mongodb').ObjectId;
 /** End of required modules. */
 
 const port = 3020;
@@ -211,6 +212,22 @@ app.get('/admin', sessionValidation, adminAuthorization, async (req,res) => {
     const result = await userCollection.find().project({username: 1, user_type: 1, _id: 1}).toArray();
  
     res.render("admin", {users: result});
+});
+
+// Promote user to admin
+app.post('/promoteUser/:id', sessionValidation, adminAuthorization, async (req,res) => {
+  const id = req.params.id;
+  const result = await userCollection.updateOne({_id: new ObjectId(id)}, {$set: {user_type: "admin"}});
+  console.log("User promoted to admin");
+  res.redirect('/admin');
+});
+
+// Demote admin to user
+app.post('/demoteUser/:id', sessionValidation, adminAuthorization, async (req,res) => {
+  const id = req.params.id;
+  const result = await userCollection.updateOne({_id: new ObjectId(id)}, {$set: {user_type: "user"}});
+  console.log("User demoted to user");
+  res.redirect('/admin');
 });
 
 /** Logout page. */
