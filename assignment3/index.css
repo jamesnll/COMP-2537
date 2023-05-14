@@ -1,0 +1,160 @@
+body {
+  background-color: #e64a4a;
+  color: rgb(0, 0, 0);
+  font-family: 'Arial', sans-serif;
+}
+
+#pokeCards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 50px;
+}
+
+.pokeCard {
+  width: 200px;
+  height: 200px;
+  margin: 10px;
+  border: 2px solid #1e10db;
+  border-radius: 10px;
+  background-color: #7fa5d6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.pokeCard:hover {
+  background-color: #087eb4;
+}
+
+.modal-content {
+  background-color: #7fa5d6;
+  color: #000000;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  border: none;
+}
+
+.modal-header {
+  border-bottom: 2px solid #000000;
+}
+
+.modal-title {
+  font-size: 2rem;
+  margin-bottom: 0;
+}
+
+.modal-body {
+  padding: 0;
+}
+
+.modal-body img {
+  width: 100%;
+  height: auto;
+  border-radius: 10px 10px 0 0;
+}
+
+.modal-body h3 {
+  font-size: 1.5rem;
+  margin: 20px 0 10px 0;
+}
+
+.modal-body ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.modal-body li {
+  margin-bottom: 5px;
+}
+
+#pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.numberedButtons {
+  background-color: #0e2974;
+  color: #ffffff;
+  border: 1px solid #fff;
+  margin-right: 5px;
+}
+
+.numberedButtons:hover {
+  background-color: #ad3939;
+}
+
+.btn-secondary {
+  background-color: #0e2974;
+  color: #ffffff;
+  border: none;
+}
+
+.btn-primary {
+  background-color: #0e2974;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #848588;
+}
+
+.form-check-input {
+  margin-top: 0.3rem;
+  margin-right: 0.25rem;
+}
+
+.form-check-label {
+  margin-left: 1.5rem;
+  cursor: pointer;
+}
+
+/* Customize checkboxes */
+.form-check-input {
+  appearance: none;
+  border: 1px solid #ffffff;
+  border-radius: 50%;
+  width: 1.2em;
+  height: 1.2em;
+  margin: 0;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.form-check-input:checked {
+  background-color: #fff;
+  background-size: 50%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.form-check-label {
+  cursor: pointer;
+  padding-left: 1.5rem;
+  margin-bottom: 0;
+}
+
+.form-check-label:hover {
+  color: #fff;
+}
+
+#typeFilters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.form-check {
+  margin-right: 20px;
+}
+
+.form-check-label {
+  margin-bottom: 0;
+}
